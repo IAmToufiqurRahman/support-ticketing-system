@@ -1,20 +1,53 @@
-import { useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+
+import { createTicket, reset } from '../features/tickets/ticketSlice'
+import Spinner from '../components/Spinner'
+import BackButton from '../components/BackButton'
 
 function NewTicket() {
   const { user } = useSelector((state) => state.auth)
+
+  const { isLoading, isError, isSuccess, message } = useSelector((state) => state.ticket)
 
   const [name] = useState(user.name)
   const [email] = useState(user.email)
   const [product, setProduct] = useState('Laptop')
   const [description, setDescription] = useState('')
 
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message)
+    }
+
+    if (isSuccess) {
+      dispatch(reset())
+
+      navigate('/tickets')
+    }
+
+    dispatch(reset())
+  }, [isError, message, isSuccess, dispatch, navigate])
+
   const onSubmit = (e) => {
     e.preventDefault()
+
+    dispatch(createTicket({ product, description }))
+  }
+
+  if (isLoading) {
+    return <Spinner />
   }
 
   return (
     <>
+      <BackButton url='/' />
+
       <section className='heading'>
         <h1>Create New Ticket</h1>
         <p>Please fill out the form below</p>
@@ -35,10 +68,10 @@ function NewTicket() {
           <div className='form-group'>
             <label htmlFor='product'>Product</label>
             <select name='product' id='product' value={product} onChange={(e) => setProduct(e.target.value)}>
-              <option value={'Laptop'}>Laptop</option>
-              <option value={'Mobile phone'}>Mobile phone</option>
-              <option value={'Smart watch'}>Smart watch</option>
-              <option value={'Smart Appliance'}>Smart Appliance</option>
+              <option value='Laptop'>Laptop</option>
+              <option value='Mobile phone'>Mobile phone</option>
+              <option value='Smart watch'>Smart watch</option>
+              <option value='Smart Appliance'>Smart Appliance</option>
             </select>
           </div>
 
