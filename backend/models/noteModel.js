@@ -24,11 +24,6 @@ const noteSchema = mongoose.Schema(
       default: false
     },
 
-    isStaff: {
-      type: Boolean,
-      default: false
-    },
-
     staffId: {
       type: String
     }
